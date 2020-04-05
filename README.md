@@ -5,9 +5,9 @@ Packet protocol supporting packet replies and a simple API
 Work in progress. Run `./gradlew build` to build.
 
 # What is it
-This is a simple library to handle TCP packets in an easy and event-based way.
+This is a simple library implementing a basic packet protocol in an easy and event-based way.
 You can receive messages and reply to them with a simple API, and reduce TCP server development time.
-It also does not depend on any external libraries and is pure Java.
+It also does not depend on any external libraries and is pure Java, so it will fit into any existing project without any changes or bloat.
 
 Here's an example on setting up a server that will reply to packets.
 
@@ -35,8 +35,7 @@ client.send(message, (reply, timedOut) -> {
 	if(timedOut) {
 		System.err.println("Reply timed out");
 	} else {
-		System.out.println("Got reply!");
-		client.close();
+		System.out.println("Got reply: "+reply.bodyAsString());
 	}
 });
 ```
