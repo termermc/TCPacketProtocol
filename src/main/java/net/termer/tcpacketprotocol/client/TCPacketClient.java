@@ -17,6 +17,7 @@ import net.termer.tcpacketprotocol.ExceptionHandler;
 import net.termer.tcpacketprotocol.Packet;
 import net.termer.tcpacketprotocol.PacketHandler;
 import net.termer.tcpacketprotocol.PacketReplyHandler;
+import net.termer.tcpacketprotocol.ReplyPacketHandler;
 
 /**
  * Client for TCPacketProtocol servers
@@ -87,6 +88,48 @@ public class TCPacketClient implements AutoCloseable {
 	}
 	
 	/**
+	 * Sends a packet
+	 * @param packet The packet to send
+	 * @throws IOException If sending the packet fails
+	 * @since 1.0
+	 */
+	public TCPacketClient send(Packet packet) throws IOException {
+		packet.sendTo(_socket.getOutputStream());
+		return this;
+	}
+	
+	/**
+	 * Sends a packet and calls the specified handler when a reply is received for it
+	 * @param packet The packet to send
+	 * @param replyHandler The handler to execute when a reply is received
+	 * @throws IOException If sending the packet fails
+	 * @since 1.0
+	 */
+	public TCPacketClient send(Packet packet, PacketReplyHandler replyHandler) throws IOException {
+		// Set expecting reply before assigning handler so ID is generated
+		packet.expectingReply(true);
+		
+		// Register handler
+		replyHandler(packet.id(), replyHandler);
+		
+		// Send packet
+		packet.sendTo(_socket.getOutputStream());
+		return this;
+	}
+	/**
+	 * Sends a packet and calls the specified handler when a reply is received for it.
+	 * Uses the default 5 second timeout time for the reply handler.
+	 * @param packet The packet to send
+	 * @param handler The handler to execute when a reply is received
+	 * @throws IOException If sending the packet fails
+	 * @since 1.0
+	 */
+	public TCPacketClient send(Packet packet, ReplyPacketHandler handler) throws IOException {
+		send(packet, new PacketReplyHandler(5, handler));
+		return this;
+	}
+	
+	/**
 	 * Registers a new packet handler
 	 * @param handler The packet handler
 	 * @return This, to be used fluently
@@ -125,11 +168,11 @@ public class TCPacketClient implements AutoCloseable {
 	public TCPacketClient triggerPacketHandlers(Packet pkt) {
 		if(_settings.blockingHandlers())
 			for(PacketHandler hdlr : _packetHandlers)
-				hdlr.handle(pkt, false);
+				hdlr.handle(pkt);
 		else
 			for(PacketHandler hdlr : _packetHandlers)
 				_execs.execute(() -> {
-					hdlr.handle(pkt, false);
+					hdlr.handle(pkt);
 				});
 		
 		return this;
@@ -235,7 +278,7 @@ public class TCPacketClient implements AutoCloseable {
 						if(leftToRead < 1) {
 							try {
 								// Parse the packet
-								Packet pkt = Packet.parsePacket(pktBuf);
+								Packet pkt = Packet.parsePacket(pktBuf).source(_socket);
 								
 								// Fire reply handler if packet is a reply
 								if(pkt.isReply()) {

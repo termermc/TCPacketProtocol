@@ -2,7 +2,6 @@ package net.termer.tcpacketprotocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -30,6 +29,8 @@ public class Packet {
 	// Sending flags for this packet
 	private boolean _expectReply = false;
 	private boolean _reply = false;
+	// Socket this came from
+	private Socket _source = null;
 	
 	/**
 	 * Creates a new packet with the specified type
@@ -40,6 +41,22 @@ public class Packet {
 		_type = type;
 	}
 	/**
+	 * Creates a new packet with the default type
+	 * @since 1.0
+	 */
+	public Packet() {
+		_type = 0;
+	}
+	/**
+	 * Creates a new packet with the default type from the provided source
+	 * @param source The Socket this packet was sent from
+	 * @since 1.0
+	 */
+	public Packet(Socket source) {
+		_type = 0;
+		_source = source;
+	}
+	/**
 	 * Creates a new packet with the specified type and ID
 	 * @param type The type for this packet
 	 * @param id The ID of this packet
@@ -48,6 +65,28 @@ public class Packet {
 	public Packet(short type, int id) {
 		_type = type;
 		_id = id;
+	}
+	/**
+	 * Creates a new packet with the specified type
+	 * @param type The type for this packet
+	 * @param source The Socket this packet was sent from
+	 * @since 1.0
+	 */
+	public Packet(short type, Socket source) {
+		_type = type;
+		_source = source;
+	}
+	/**
+	 * Creates a new packet with the specified type and ID
+	 * @param type The type for this packet
+	 * @param id The ID of this packet
+	 * @param source The Socket this packet was sent from
+	 * @since 1.0
+	 */
+	public Packet(short type, int id, Socket source) {
+		_type = type;
+		_id = id;
+		_source = source;
 	}
 	
 	/**
@@ -123,6 +162,15 @@ public class Packet {
 	}
 	
 	/**
+	 * Returns the socket this Packet was sent from (may be null)
+	 * @return The socket this Packet came from
+	 * @since 1.0
+	 */
+	public Socket source() {
+		return _source;
+	}
+	
+	/**
 	 * Sets this packet's body
 	 * @param body The packet's body
 	 * @return This, to be used fluently
@@ -176,6 +224,16 @@ public class Packet {
 		_expectReply = expecting;
 		if(_id == Integer.MIN_VALUE)
 			_id = IntGenerator.nextInt();
+		return this;
+	}
+	
+	/**
+	 * Sets the socket this Packet was sent from (may be null)
+	 * @param source The socket this Packet came from
+	 * @since 1.0
+	 */
+	public Packet source(Socket source) {
+		_source = source;
 		return this;
 	}
 	
@@ -241,6 +299,27 @@ public class Packet {
 			throw new IllegalStateException("Cannot reply to packet that is not expecting a reply");
 		}
 	}
+	/**
+	 * Replies to this packet with the provided packet
+	 * @param pkt The packet to reply with
+	 * @param destination The destination to send the reply to
+	 * @throws IOException If sending the packet fails
+	 * @throws IllegalStateException If this packet is not excepting a reply, or if source() is null
+	 * @since 1.0
+	 */
+	public void replyWith(Packet pkt) throws IOException {
+		if(_expectReply) {
+			if(_source == null) {
+				throw new IllegalStateException("Packet source is null");
+			} else {
+				pkt
+						.setReplyTo(_id)
+						.sendTo(_source.getOutputStream());
+			}
+		} else {
+			throw new IllegalStateException("Cannot reply to packet that is not expecting a reply");
+		}
+	}
 	
 	/**
 	 * Parses an array of bytes into a Packet object
@@ -295,31 +374,8 @@ public class Packet {
 		// Register packet handler on the server
 		server
 				// Packet handler
-				.packetHandler((packet, timedOut) -> {
+				.packetHandler(packet -> {
 					System.out.println("Server Got: "+packet.type()+" "+packet.bodyAsString()+" (reply: "+packet.isReply()+")");
-				})
-				// Register connect and disconnect handlers
-				.connectHandler((sock) -> {
-					System.out.println(sock.socket().getInetAddress().getHostAddress()+" connected");
-					try {
-						sock.send(new Packet((byte) 0).body("WOOO"), new PacketReplyHandler(5, (reply, timedOut) -> {
-							if(timedOut) {
-								System.out.println("Reply timed out");
-							} else {
-								System.out.println("Got reply: "+pkt.bodyAsString());
-								try {
-									sock.disconnect();
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-							}
-						}));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				})
-				.disconnectHandler((sock) -> {
-					System.out.println(sock.socket().getInetAddress().getHostAddress()+" disconnected");
 				});
 		
 		try {
@@ -330,17 +386,11 @@ public class Packet {
 			// Connect to server
 			TCPacketClient sock = new TCPacketClient(new TCPacketClientSettings().address("localhost").port(9006).printErrors(true));
 			try {
-				sock.packetHandler((packet, timedOut) -> {
-					System.out.println("Client Got: "+packet.type()+" "+packet.bodyAsString());
-					if(packet.type() == 0) {
-						try {
-							packet.replyWith(new Packet((byte) 0).body("f"), sock.socket().getOutputStream());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				});
 				sock.connect();
+				
+				sock.send(new Packet().body("Ping!"), (packet, timedOut) -> {
+					//TODO
+				});
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}

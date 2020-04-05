@@ -144,11 +144,11 @@ public class TCPacketServer implements AutoCloseable {
 	public TCPacketServer triggerPacketHandlers(Packet pkt) {
 		if(_settings.blockingHandlers())
 			for(PacketHandler hdlr : _packetHandlers)
-				hdlr.handle(pkt, false);
+				hdlr.handle(pkt);
 		else
 			for(PacketHandler hdlr : _packetHandlers)
 				_execs.execute(() -> {
-					hdlr.handle(pkt, false);
+					hdlr.handle(pkt);
 				});
 		
 		return this;
@@ -306,7 +306,7 @@ public class TCPacketServer implements AutoCloseable {
 								if(leftToRead < 1) {
 									try {
 										// Parse the packet
-										Packet pkt = Packet.parsePacket(pktBuf);
+										Packet pkt = Packet.parsePacket(pktBuf).source(sock.socket());
 										
 										// Fire reply handler if packet is a reply
 										if(pkt.isReply()) {

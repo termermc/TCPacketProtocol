@@ -69,7 +69,7 @@ public class ServerConnection implements AutoCloseable {
 	 */
 	public ServerConnection triggerPacketHandlers(Packet pkt) {
 		for(PacketHandler hdlr : _packetHandlers)
-			hdlr.handle(pkt, false);
+			hdlr.handle(pkt);
 		
 		return this;
 	}

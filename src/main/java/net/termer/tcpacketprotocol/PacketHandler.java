@@ -6,5 +6,5 @@ package net.termer.tcpacketprotocol;
  * @since 1.0
  */
 public interface PacketHandler {
-	public void handle(Packet packet, boolean timedOut);
+	public void handle(Packet packet);
 }

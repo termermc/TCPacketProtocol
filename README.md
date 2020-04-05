@@ -15,10 +15,10 @@ Here's an example on setting up a server that will reply to packets.
 
 TCPacketServer server = new TCPacketServer(9006);
 
-server.onPacket(packet -> {
-	if(packet.readBody().equals("Ping!")) {
+server.packetHandler(packet -> {
+	if(packet.bodyAsString().equals("Ping!")) {
 		Packet reply = new Packet()
-				.withBody("Pong!");
+				.body("Pong!");
 		
 		packet.replyWith(reply);
 	}

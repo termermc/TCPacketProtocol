@@ -8,7 +8,7 @@ package net.termer.tcpacketprotocol.client;
 public class TCPacketClientSettings {
 	// Max packet body size
 	private int _maxPktBody = 1024;
-	private String _addr = "0.0.0.0";
+	private String _addr = "127.0.0.1";
 	private int _port = 9006;
 	private int _pktHandlePool = 3;
 	private boolean _blockingHdlrs = false;
