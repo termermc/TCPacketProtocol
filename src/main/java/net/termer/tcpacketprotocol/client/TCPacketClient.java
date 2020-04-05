@@ -226,7 +226,6 @@ public class TCPacketClient implements AutoCloseable {
 	 */
 	public void connect() throws IOException {
 		// Connect
-		System.out.println(_settings.address()+":"+_settings.port());
 		_socket = new Socket(InetAddress.getByName(_settings.address()), _settings.port());
 		
 		// Setup event executor thread pool
