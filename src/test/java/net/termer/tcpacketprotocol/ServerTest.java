@@ -8,9 +8,10 @@ import static org.junit.Assert.*;
  * @author termer
  * @since 1.0
  */
-public class LibraryTest {
+public class ServerTest {
     @Test public void testServerStartup() {
-        //
-//        assertTrue("someLibraryMethod should return 'true'", classUnderTest.someLibraryMethod());
+        try {
+        	assertTrue("someLibraryMethod should return 'true'", classUnderTest.someLibraryMethod());
+        }
     }
 }
