@@ -6,10 +6,6 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import net.termer.tcpacketprotocol.client.TCPacketClient;
-import net.termer.tcpacketprotocol.client.TCPacketClientSettings;
-import net.termer.tcpacketprotocol.server.TCPacketServer;
-import net.termer.tcpacketprotocol.server.TCPacketServerSettings;
 import net.termer.tcpacketprotocol.util.IntGenerator;
 
 /**
@@ -353,49 +349,6 @@ public class Packet {
 			return pkt;
 		} catch(Exception e) {
 			throw new MalformedPacketException(e.getMessage());
-		}
-	}
-	
-	public static void main(String[] args) {
-		System.out.println("Starting");
-		Packet pkt = new Packet((byte) 0)
-				.body("Hello world")
-				.expectingReply(true);
-		
-		TCPacketServer server = new TCPacketServer(new TCPacketServerSettings()
-				.packetHandlerPoolSize(12)
-				.maxConnections(12)
-				.bindPort(9006)
-				.blockingHandlers(true)
-				.bindAddress("localhost")
-				.printErrors(true)
-		);
-		
-		// Register packet handler on the server
-		server
-				// Packet handler
-				.packetHandler(packet -> {
-					System.out.println("Server Got: "+packet.type()+" "+packet.bodyAsString()+" (reply: "+packet.isReply()+")");
-				});
-		
-		try {
-			// Start server
-			server.start();
-			System.out.println("Started");
-			
-			// Connect to server
-			TCPacketClient sock = new TCPacketClient(new TCPacketClientSettings().address("localhost").port(9006).printErrors(true));
-			try {
-				sock.connect();
-				
-				sock.send(new Packet().body("Ping!"), (packet, timedOut) -> {
-					//TODO
-				});
-			} catch(Exception ex) {
-				ex.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 }
