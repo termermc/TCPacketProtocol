@@ -79,6 +79,15 @@ public class TCPacketClient implements AutoCloseable {
 	}
 	
 	/**
+	 * Returns this client's settings
+	 * @return This client's settings
+	 * @since 1.0
+	 */
+	public TCPacketClientSettings settings() {
+		return _settings;
+	}
+	
+	/**
 	 * Returns this client's Socket
 	 * @return This client's Socket
 	 * @since 1.0

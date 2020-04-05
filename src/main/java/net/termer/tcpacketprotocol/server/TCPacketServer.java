@@ -49,6 +49,9 @@ public class TCPacketServer implements AutoCloseable {
 	// Exception handlers
 	private CopyOnWriteArrayList<ExceptionHandler> _exceptionHandlers = new CopyOnWriteArrayList<ExceptionHandler>();
 	
+	// Connections
+	private CopyOnWriteArrayList<ServerConnection> _connections = new CopyOnWriteArrayList<ServerConnection>();
+	
 	// Timer that handles reply timeouts
 	private Timer _replyTimeoutTimer = new Timer();
 	
@@ -83,6 +86,24 @@ public class TCPacketServer implements AutoCloseable {
 		_settings
 				.bindPort(port)
 				.bindAddress(address);
+	}
+	
+	/**
+	 * Returns this server's settings
+	 * @return This server's settings
+	 * @since 1.0
+	 */
+	public TCPacketServerSettings settings() {
+		return _settings;
+	}
+	
+	/**
+	 * Returns all current server connections
+	 * @return All current server connections
+	 * @since 1.0
+	 */
+	public ServerConnection[] connections() {
+		return _connections.toArray(new ServerConnection[0]);
 	}
 	
 	/**
@@ -287,6 +308,9 @@ public class TCPacketServer implements AutoCloseable {
 				// Loop while the server is running
 				while(!_shutDown) {
 					try(ServerConnection sock = new ServerConnection(_server.accept(), this)) {
+						// Add to connections
+						_connections.add(sock);
+						
 						// Fire connect handlers
 						if(_settings.blockingHandlers())
 							for(ConnectHandler hdlr : _connectHandlers)
@@ -357,6 +381,9 @@ public class TCPacketServer implements AutoCloseable {
 							}
 						}
 						
+						// Remove connection
+						_connections.remove(sock);
+						
 						// Fire disconnect handlers
 						if(_settings.blockingHandlers())
 							for(DisconnectHandler hdlr : _disconnectHandlers)
@@ -395,6 +422,7 @@ public class TCPacketServer implements AutoCloseable {
 		// Close resources
 		if(_server != null)
 			_server.close();
+		_connections.clear();
 		if(_execs != null)
 			_execs.shutdown();
 		if(_replyTimeoutTimer != null)
