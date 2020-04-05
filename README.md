@@ -30,7 +30,6 @@ client.connect();
 
 Packet message = new Packet()
 		.withBody("Ping!")
-		.expectingReply(true);
 
-client.send(message);
+client.send(message, ();
 ```

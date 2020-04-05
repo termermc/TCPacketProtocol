@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import net.termer.tcpacketprotocol.Packet;
 import net.termer.tcpacketprotocol.PacketHandler;
 import net.termer.tcpacketprotocol.PacketReplyHandler;
+import net.termer.tcpacketprotocol.ReplyPacketHandler;
 
 /**
  * Class to hold methods and data for server connections.
@@ -84,7 +85,6 @@ public class ServerConnection implements AutoCloseable {
 		packet.sendTo(_sock.getOutputStream());
 		return this;
 	}
-	
 	/**
 	 * Sends a packet to this client and calls the specified handler when a reply is received for it
 	 * @param packet The packet to send
@@ -101,6 +101,18 @@ public class ServerConnection implements AutoCloseable {
 		
 		// Send packet
 		packet.sendTo(_sock.getOutputStream());
+		return this;
+	}
+	/**
+	 * Sends a packet to this client and calls the specified handler when a reply is received for it.
+	 * Uses the default 5 second timeout time for the reply handler.
+	 * @param packet The packet to send
+	 * @param handler The handler to execute when a reply is received
+	 * @throws IOException If sending the packet fails
+	 * @since 1.0
+	 */
+	public ServerConnection send(Packet packet, ReplyPacketHandler handler) throws IOException {
+		send(packet, new PacketReplyHandler(5, handler));
 		return this;
 	}
 	
