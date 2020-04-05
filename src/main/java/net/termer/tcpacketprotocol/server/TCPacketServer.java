@@ -2,6 +2,7 @@ package net.termer.tcpacketprotocol.server;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
@@ -231,6 +232,15 @@ public class TCPacketServer implements AutoCloseable {
 		return this;
 	}
 	
+	// Safely read a byte and return -1 if there's an error
+	private int safeReadByte(InputStream in) {
+		try {
+			return in.read();
+		} catch(Exception e) {
+			return -1;
+		}
+	}
+	
 	/**
 	 * Starts the server
 	 * @throws IOException If starting the server fails
@@ -297,7 +307,7 @@ public class TCPacketServer implements AutoCloseable {
 						
 						// Input loop
 						int b = 0;
-						while(!sock.socket().isClosed() && (b = in.read()) > -1) {
+						while(!sock.socket().isClosed() && (b = safeReadByte(in)) > -1) {
 							if(leftToSkip < 1 && leftToRead > 0) {
 								pktBuf[pktBuf.length - leftToRead] = (byte) b;
 								leftToRead--;
