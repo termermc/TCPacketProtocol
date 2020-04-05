@@ -31,5 +31,12 @@ client.connect();
 Packet message = new Packet()
 		.withBody("Ping!")
 
-client.send(message, ();
+client.send(message, (reply, timedOut) -> {
+	if(timedOut) {
+		System.err.println("Reply timed out");
+	} else {
+		System.out.println("Got reply!");
+		client.close();
+	}
+});
 ```
