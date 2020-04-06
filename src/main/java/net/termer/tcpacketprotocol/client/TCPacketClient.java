@@ -231,9 +231,10 @@ public class TCPacketClient implements AutoCloseable {
 	/**
 	 * Connects to the server
 	 * @throws IOException If connection fails
+	 * @return This, to be used fluently
 	 * @since 1.0
 	 */
-	public void connect() throws IOException {
+	public TCPacketClient connect() throws IOException {
 		// Connect
 		_socket = new Socket(InetAddress.getByName(_settings.address()), _settings.port());
 		
@@ -332,6 +333,8 @@ public class TCPacketClient implements AutoCloseable {
 		});
 		thread.setName("TCPacketClient");
 		thread.start();
+		
+		return this;
 	}
 	
 	/**

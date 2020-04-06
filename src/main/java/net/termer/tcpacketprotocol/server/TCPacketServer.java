@@ -107,6 +107,15 @@ public class TCPacketServer implements AutoCloseable {
 	}
 	
 	/**
+	 * Returns this server's ServerSocket object
+	 * @return This server's ServerSocket
+	 * @since 1.0
+	 */
+	public ServerSocket serverSocket() {
+		return _server;
+	}
+	
+	/**
 	 * Registers a new packet handler
 	 * @param handler The packet handler
 	 * @return This, to be used fluently
@@ -265,9 +274,10 @@ public class TCPacketServer implements AutoCloseable {
 	/**
 	 * Starts the server
 	 * @throws IOException If starting the server fails
+	 * @return This, to be used fluently
 	 * @since 1.0
 	 */
-	public void start() throws IOException {
+	public TCPacketServer start() throws IOException {
 		_shutDown = false;
 		
 		// Start TCP server
@@ -409,6 +419,8 @@ public class TCPacketServer implements AutoCloseable {
 			// Start thread
 			thread.start();
 		}
+		
+		return this;
 	}
 	
 	/**
