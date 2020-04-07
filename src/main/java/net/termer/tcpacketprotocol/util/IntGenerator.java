@@ -8,8 +8,8 @@ import java.util.Random;
  * @since 1.0
  */
 public class IntGenerator {
-	// Create an integer with the minimum value
-	private static int _val = Integer.MIN_VALUE;
+	// Create an integer with the minimum value + 1 to avoid problems
+	private static int _val = Integer.MIN_VALUE+1;
 	
 	private static Random _rand = new Random();
 	
@@ -21,7 +21,7 @@ public class IntGenerator {
 	public static int nextInt() {
 		// Reset if needed
 		if(_val == Integer.MAX_VALUE)
-			_val = Integer.MIN_VALUE;
+			_val = Integer.MIN_VALUE+1;
 		
 		return _val++;
 	}

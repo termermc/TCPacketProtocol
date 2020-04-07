@@ -98,6 +98,7 @@ public class ServerConnection implements AutoCloseable {
 		
 		// Register handler
 		_server.replyHandler(packet.id(), replyHandler);
+		System.out.println("Int: "+Integer.MIN_VALUE+", pkt ID: "+packet.id());
 		
 		// Send packet
 		packet.sendTo(_sock.getOutputStream());

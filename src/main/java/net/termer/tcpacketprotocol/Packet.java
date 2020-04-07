@@ -256,8 +256,9 @@ public class Packet {
 			.put(type);
 		if(type == 1)
 			buf.putInt(_id);
-		else
+		else if(type == 2)
 			buf.putInt(_replyId);
+		
 		buf.put(_body);
 		
 		return buf.array();
