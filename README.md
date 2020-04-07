@@ -52,3 +52,6 @@ Download the JAR library from the releases tab, or compile the library using Gra
 # Compiling
 Download or clone the repository, and run either `gradlew.bat` (Windows), or `./gradlew` (OSX, Linux, Unix).
 If all goes well, the library will be in `build/libs/`.
+
+# Javadoc
+The Javadoc is located at [https://termer.net/javadoc/tcpacketprotocol/1.0/](https://termer.net/javadoc/tcpacketprotocol/1.0/)
