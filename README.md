@@ -1,9 +1,6 @@
 # TCPacketProtocol
 Packet protocol supporting packet replies and a simple API
 
-# WIP
-Work in progress. Run `./gradlew build` to build.
-
 # What is it
 This is a simple library implementing a basic packet protocol in an easy and event-based way.
 You can receive messages and reply to them with a simple API, and reduce TCP server development time.
@@ -29,7 +26,7 @@ TCPacketClient client = TCPacketClient(9006);
 client.connect();
 
 Packet message = new Packet()
-		.withBody("Ping!")
+		.body("Ping!");
 
 client.send(message, (reply, timedOut) -> {
 	if(timedOut) {
@@ -39,3 +36,19 @@ client.send(message, (reply, timedOut) -> {
 	}
 });
 ```
+
+# Features
+Here's a list of all features in TCPacketProtocol:
+
+ - Simple and efficient packet structure
+ - Repliable packets with callbacks
+ - Managed threading
+ - Works with Java 8 lambdas
+ - Fluent API
+
+# Getting it
+Download the JAR library from the releases tab, or compile the library using Gradle.
+
+# Compiling
+Download or clone the repository, and run either `gradlew.bat` (Windows), or `./gradlew` (OSX, Linux, Unix).
+If all goes well, the library will be in `build/libs/`.
