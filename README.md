@@ -54,4 +54,4 @@ Download or clone the repository, and run either `gradlew.bat` (Windows), or `./
 If all goes well, the library will be in `build/libs/`.
 
 # Javadoc
-The Javadoc is located at [https://termer.net/javadoc/tcpacketprotocol/1.0/](https://termer.net/javadoc/tcpacketprotocol/1.0/)
+The Javadoc is located at [https://termer.net/javadoc/tcpacketprotocol/1.0/](https://termer.net/javadoc/tcpacketprotocol/1.0/).
