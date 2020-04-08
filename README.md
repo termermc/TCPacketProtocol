@@ -47,7 +47,25 @@ Here's a list of all features in TCPacketProtocol:
  - Fluent API
 
 # Getting it
-Download the JAR library from the releases tab, or compile the library using Gradle.
+If you use Maven, you can add the following to your `pom.xml`:
+
+```xml
+<dependency>
+	<groupId>net.termer.tcpacketprotocol</groupId>
+	<artifactId>TCPacketProtocol</artifactId>
+	<version>1.0</version>
+</dependency>
+```
+
+For Gradle, use the following:
+
+```groovy
+dependencies {
+    compile "net.termer.tcpacketprotocol:TCPacketProtocol:1.0"
+}
+```
+
+If you don't use a package manager, you can download the JAR library from the releases tab, or compile the library using Gradle.
 
 # Compiling
 Download or clone the repository, and run either `gradlew.bat` (Windows), or `./gradlew` (OSX, Linux, Unix).
