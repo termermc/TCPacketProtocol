@@ -9,6 +9,54 @@
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    id "com.bmuschko.nexus" version "2.3.1"
+}
+
+archivesBaseName = 'TCPacketProtocol'
+group = "net.termer.tcpacketprotocol"
+version = "1.0"
+
+modifyPom {
+    project {
+        name 'TCPacketProtocol'
+        description 'Packet protocol supporting repliable packets and a simple API'
+        url 'https://github.com/termermc/tcpacketprotocol'
+        inceptionYear '2020'
+
+        scm {
+            url 'https://github.com/termermc/tcpacketprotocol'
+            connection 'scm:https://termermc@github.com/termermc/tcpacketprotocol.git'
+            developerConnection 'scm:git://termermc@github.com/termermc/tcpacketprotocol.git'
+        }
+
+        licenses {
+            license {
+                name 'MIT License'
+                url 'https://opensource.org/licenses/MIT'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'termer'
+                name 'Michael Termer'
+                email 'termer@protonmail.com'
+            }
+        }
+    }
+}
+
+extraArchive {
+    sources = true
+    tests = true
+    javadoc = true
+}
+
+nexus {
+    sign = true
+    repositoryUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+    snapshotRepositoryUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
 }
 
 repositories {
