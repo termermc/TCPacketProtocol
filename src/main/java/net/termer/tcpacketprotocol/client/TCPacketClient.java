@@ -100,6 +100,7 @@ public class TCPacketClient implements AutoCloseable {
 	 * Sends a packet
 	 * @param packet The packet to send
 	 * @throws IOException If sending the packet fails
+	 * @return This, to be used fluently
 	 * @since 1.0
 	 */
 	public TCPacketClient send(Packet packet) throws IOException {
@@ -111,6 +112,7 @@ public class TCPacketClient implements AutoCloseable {
 	 * Sends a packet and calls the specified handler when a reply is received for it
 	 * @param packet The packet to send
 	 * @param replyHandler The handler to execute when a reply is received
+	 * @return This, to be used fluently
 	 * @throws IOException If sending the packet fails
 	 * @since 1.0
 	 */
@@ -130,6 +132,7 @@ public class TCPacketClient implements AutoCloseable {
 	 * Uses the default 5 second timeout time for the reply handler.
 	 * @param packet The packet to send
 	 * @param handler The handler to execute when a reply is received
+	 * @return This, to be used fluently
 	 * @throws IOException If sending the packet fails
 	 * @since 1.0
 	 */

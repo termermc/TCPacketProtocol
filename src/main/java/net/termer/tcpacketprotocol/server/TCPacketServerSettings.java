@@ -101,7 +101,7 @@ public class TCPacketServerSettings {
 	}
 	/**
 	 * Sets the server bind address
-	 * @param max The server bind address
+	 * @param address The server bind address
 	 * @return This, to be used fluently
 	 * @since 1.0
 	 */
@@ -111,7 +111,7 @@ public class TCPacketServerSettings {
 	}
 	/**
 	 * Sets the server bind port
-	 * @param max The server bind port
+	 * @param port The server bind port
 	 * @return This, to be used fluently
 	 * @since 1.0
 	 */

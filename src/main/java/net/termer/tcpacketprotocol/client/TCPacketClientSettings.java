@@ -81,7 +81,7 @@ public class TCPacketClientSettings {
 	}
 	/**
 	 * Sets the connection address
-	 * @param max The connection address
+	 * @param address The connection address
 	 * @return This, to be used fluently
 	 * @since 1.0
 	 */
@@ -91,7 +91,7 @@ public class TCPacketClientSettings {
 	}
 	/**
 	 * Sets the connection port
-	 * @param max The connection port
+	 * @param port The connection port
 	 * @return This, to be used fluently
 	 * @since 1.0
 	 */

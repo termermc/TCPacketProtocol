@@ -226,6 +226,7 @@ public class Packet {
 	/**
 	 * Sets the socket this Packet was sent from (may be null)
 	 * @param source The socket this Packet came from
+	 * @return This, to be used fluently
 	 * @since 1.0
 	 */
 	public Packet source(Socket source) {
@@ -299,7 +300,6 @@ public class Packet {
 	/**
 	 * Replies to this packet with the provided packet
 	 * @param pkt The packet to reply with
-	 * @param destination The destination to send the reply to
 	 * @throws IOException If sending the packet fails
 	 * @throws IllegalStateException If this packet is not excepting a reply, or if source() is null
 	 * @since 1.0
