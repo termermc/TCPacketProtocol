@@ -116,6 +116,15 @@ public class TCPacketServer implements AutoCloseable {
 	}
 	
 	/**
+	 * Returns whether this server is closed
+	 * @return Whether this server is closed
+	 * @since 1.0
+	 */
+	public boolean isClosed() {
+		return _server == null ? true : _server.isClosed();
+	}
+	
+	/**
 	 * Registers a new packet handler
 	 * @param handler The packet handler
 	 * @return This, to be used fluently
@@ -287,6 +296,7 @@ public class TCPacketServer implements AutoCloseable {
 		_execs = Executors.newFixedThreadPool(_settings.packetHandlerPoolSize());
 		
 		// Setup reply timeout timer
+		_replyTimeoutTimer = new Timer();
 		_replyTimeoutTimer.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 				Instant now = Instant.now();
@@ -432,7 +442,7 @@ public class TCPacketServer implements AutoCloseable {
 		_shutDown = true;
 		
 		// Close resources
-		if(_server != null)
+		if(_server != null && !_server.isClosed())
 			_server.close();
 		_connections.clear();
 		if(_execs != null)

@@ -97,6 +97,15 @@ public class TCPacketClient implements AutoCloseable {
 	}
 	
 	/**
+	 * Returns whether this client is closed
+	 * @return Whether this client is closed
+	 * @since 1.0
+	 */
+	public boolean isClosed() {
+		return _socket == null ? true : _socket.isClosed();
+	}
+	
+	/**
 	 * Sends a packet
 	 * @param packet The packet to send
 	 * @throws IOException If sending the packet fails
@@ -245,6 +254,7 @@ public class TCPacketClient implements AutoCloseable {
 		_execs = Executors.newFixedThreadPool(_settings.packetHandlerPoolSize());
 		
 		// Setup reply timeout timer
+		_replyTimeoutTimer = new Timer();
 		_replyTimeoutTimer.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 				Instant now = Instant.now();
@@ -347,7 +357,7 @@ public class TCPacketClient implements AutoCloseable {
 	 */
 	public void close() throws IOException {
 		// Close resources
-		if(_socket != null)
+		if(_socket != null && !_socket.isClosed())
 			_socket.close();
 		if(_execs != null)
 			_execs.shutdown();
