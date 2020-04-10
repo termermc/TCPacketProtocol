@@ -41,6 +41,10 @@ public class TCPacketClient implements AutoCloseable {
 	private CopyOnWriteArrayList<PacketHandler> _packetHandlers = new CopyOnWriteArrayList<PacketHandler>();
 	// Exception handlers
 	private CopyOnWriteArrayList<ExceptionHandler> _exceptionHandlers = new CopyOnWriteArrayList<ExceptionHandler>();
+	// Connect handlers
+	private CopyOnWriteArrayList<ConnectHandler> _connectHandlers = new CopyOnWriteArrayList<ConnectHandler>();
+	// Disconnect handlers
+	private CopyOnWriteArrayList<DisconnectHandler> _disconnectHandlers = new CopyOnWriteArrayList<DisconnectHandler>();
 	
 	// Timer that handles reply timeouts
 	private Timer _replyTimeoutTimer = new Timer();
@@ -179,6 +183,24 @@ public class TCPacketClient implements AutoCloseable {
 		_exceptionHandlers.add(handler);
 		return this;
 	}
+	/**
+	 * Registers a new connection handler
+	 * @param handler The connection handler
+	 * @return This, to be used fluently
+	 */
+	public TCPacketClient connectHandler(ConnectHandler handler) {
+		_connectHandlers.add(handler);
+		return this;
+	}
+	/**
+	 * Registers a new disconnection handler
+	 * @param handler The disconnection handler
+	 * @return This, to be used fluently
+	 */
+	public TCPacketClient disconnectHandler(DisconnectHandler handler) {
+		_disconnectHandlers.add(handler);
+		return this;
+	}
 	
 	/**
 	 * Triggers a client packet event
@@ -235,6 +257,40 @@ public class TCPacketClient implements AutoCloseable {
 			for(ExceptionHandler hdlr : _exceptionHandlers)
 				_execs.execute(() -> {
 					hdlr.handle(exception);
+				});
+		
+		return this;
+	}
+	/**
+	 * Triggers a connection event
+	 * @return This, to be used fluently
+	 * @since 1.0
+	 */
+	public TCPacketClient triggerConnectHandlers() {
+		if(_settings.blockingHandlers())
+			for(ConnectHandler hdlr : _connectHandlers)
+				hdlr.handle();
+		else
+			for(ConnectHandler hdlr : _connectHandlers)
+				_execs.execute(() -> {
+					hdlr.handle();
+				});
+		
+		return this;
+	}
+	/**
+	 * Triggers a disconnection event
+	 * @return This, to be used fluently
+	 * @since 1.0
+	 */
+	public TCPacketClient triggerDisconnectHandlers() {
+		if(_settings.blockingHandlers())
+			for(DisconnectHandler hdlr : _disconnectHandlers)
+				hdlr.handle();
+		else
+			for(DisconnectHandler hdlr : _disconnectHandlers)
+				_execs.execute(() -> {
+					hdlr.handle();
 				});
 		
 		return this;
@@ -347,6 +403,9 @@ public class TCPacketClient implements AutoCloseable {
 		thread.setName("TCPacketClient");
 		thread.start();
 		
+		// Trigger handlers
+		triggerConnectHandlers();
+		
 		return this;
 	}
 	
@@ -363,5 +422,8 @@ public class TCPacketClient implements AutoCloseable {
 			_execs.shutdown();
 		if(_replyTimeoutTimer != null)
 			_replyTimeoutTimer.cancel();
+		
+		// Trigger handlers
+		triggerDisconnectHandlers();
 	}
 }
