@@ -217,7 +217,7 @@ public class Packet {
 	 * Sets this packet's body as a serialized Object.
 	 * Fields are serialized into a packet body which can later be deserialized into another Object of the same type containing the same field values.
 	 * The following types can be serialized: byte, boolean, short, char, int, float, long, double, String.
-	 * @param body The Object to use for the packet body
+	 * @param obj The Object to use for the packet body
 	 * @return This, to be used fluently
 	 * @throws IllegalArgumentException If a value is provided that is not on the list of types this method can serialize.
 	 * @throws IllegalAccessException If the Java reflection methods required to serialize fails
@@ -458,8 +458,9 @@ public class Packet {
 	 * Fields are used to deserialize packets, and read sequentially
 	 * Provided class must have a public constructor that requires no arguments, or an IllegalAccessException will be thrown.
 	 * The following types can be serialized: byte, boolean, short, char, int, float, long, double, String.
-	 * @param obj The object to serialize
-	 * @return The packet body
+	 * @param body The packet body to deserialize
+	 * @param objectType The class of the Object to create from this packet body
+	 * @return The Object created from the packet body
 	 * @throws InstantiationException If an Object of the class type specified cannot be instantiated
 	 * @throws IllegalArgumentException If a value is provided that is not on the list of types this method can serialize.
 	 * @throws IllegalAccessException If the Java reflection methods required to serialize fails
