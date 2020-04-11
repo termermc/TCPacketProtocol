@@ -53,7 +53,7 @@ If you use Maven, you can add the following to your `pom.xml`:
 <dependency>
 	<groupId>net.termer.tcpacketprotocol</groupId>
 	<artifactId>TCPacketProtocol</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 </dependency>
 ```
 
@@ -61,7 +61,7 @@ For Gradle, use the following:
 
 ```groovy
 dependencies {
-    compile "net.termer.tcpacketprotocol:TCPacketProtocol:1.0"
+    compile "net.termer.tcpacketprotocol:TCPacketProtocol:1.1"
 }
 ```
 
