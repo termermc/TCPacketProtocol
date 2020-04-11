@@ -2,6 +2,7 @@ package net.termer.tcpacketprotocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -95,21 +96,36 @@ public class Packet {
 	}
 	
 	/**
-	 * Returns this packet's body
-	 * @return The packet's body
+	 * Returns this packet's body as a String
+	 * @return The packet's body as a String
 	 * @since 1.0
 	 */
 	public String bodyAsString() {
 		return new String(_body);
 	}
 	/**
-	 * Returns this packet's body
+	 * Returns this packet's body as a String
 	 * @param charset The charset to use when decoding the body
-	 * @return The packet's body
+	 * @return The packet's body as a String
 	 * @since 1.0
 	 */
 	public String bodyAsString(Charset charset) {
 		return new String(_body, charset);
+	}
+	/**
+	 * Returns this packet's body as an Object
+	 * Fields are used to deserialize packets, and read sequentially
+	 * Provided class must have a public constructor that requires no arguments, or an IllegalAccessException will be thrown.
+	 * The following types can be serialized: byte, boolean, short, char, int, float, long, double, String.
+	 * @param type The Object type to deserialize this packet's body to
+	 * @return The packet body as an Object
+	 * @throws InstantiationException If an Object of the class type specified cannot be instantiated
+	 * @throws IllegalArgumentException If a value is provided that is not on the list of types this method can serialize.
+	 * @throws IllegalAccessException If the Java reflection methods required to serialize fails
+	 * @since 1.0
+	 */
+	public Object bodyAsObject(Class<? extends Object> type) throws InstantiationException, IllegalAccessException {
+		return packetBodyToObject(_body, type);
 	}
 	
 	/**
@@ -195,6 +211,20 @@ public class Packet {
 	 */
 	public Packet body(String body, Charset charset) {
 		_body = body.getBytes(charset);
+		return this;
+	}
+	/**
+	 * Sets this packet's body as a serialized Object.
+	 * Fields are serialized into a packet body which can later be deserialized into another Object of the same type containing the same field values.
+	 * The following types can be serialized: byte, boolean, short, char, int, float, long, double, String.
+	 * @param body The Object to use for the packet body
+	 * @return This, to be used fluently
+	 * @throws IllegalArgumentException If a value is provided that is not on the list of types this method can serialize.
+	 * @throws IllegalAccessException If the Java reflection methods required to serialize fails
+	 * @since 1.0
+	 */
+	public Packet body(Object obj) throws IllegalArgumentException, IllegalAccessException {
+		_body = objectToPacketBody(obj);
 		return this;
 	}
 	
@@ -350,6 +380,149 @@ public class Packet {
 			return pkt;
 		} catch(Exception e) {
 			throw new MalformedPacketException(e.getMessage());
+		}
+	}
+	
+	/**
+	 * Serializes a Java object into a packet body.
+	 * Fields are serialized into a packet body which can later be deserialized into another Object of the same type containing the same field values.
+	 * The following types can be serialized: byte, boolean, short, char, int, float, long, double, String.
+	 * @param obj The object to serialize
+	 * @return The packet body
+	 * @throws IllegalArgumentException If a value is provided that is not on the list of types this method can serialize.
+	 * @throws IllegalAccessException If the Java reflection methods required to serialize fails
+	 * @since 1.0
+	 */
+	public static byte[] objectToPacketBody(Object obj) throws IllegalArgumentException, IllegalAccessException {
+		Class<? extends Object> cls = obj.getClass();
+		int size = 0;
+		for(Field field : cls.getDeclaredFields()) {
+			// Bypass Java type checks to improve speed
+			field.setAccessible(true);
+			
+			Class<? extends Object> type = field.getType(); 
+			
+			// Increment size
+			if(type == String.class)
+				size += 4+((String) field.get(obj)).length();
+			else if(type == byte.class || type == boolean.class)
+				size++;
+			else if(type == short.class || type == char.class)
+				size+=2;
+			else if(type == int.class || type == float.class)
+				size+=4;
+			else if(type == long.class || type == double.class)
+				size+=8;
+			else
+				throw new IllegalArgumentException("Cannot convert Objects other than String to a packet body!");
+		}
+		
+		// Setup ByteBuffer and put values
+		ByteBuffer buf = ByteBuffer.allocate(size);
+		
+		// Put values
+		for(Field field : cls.getDeclaredFields()) {
+			// Bypass Java type checks to improve speed
+			field.setAccessible(true);
+			
+			Class<? extends Object> type = field.getType(); 
+			
+			// Put values in buffer
+			if(type == String.class)
+				buf
+						.putInt(((String) field.get(obj)).length())
+						.put(((String) field.get(obj)).getBytes(Charset.forName("UTF-8")));
+			else if(type == byte.class)
+				buf.put(field.getByte(obj));
+			else if(type == boolean.class)
+				buf.put(field.getBoolean(obj) ? (byte) 1 : (byte) 0);
+			else if(type == short.class)
+				buf.putShort(field.getShort(obj));
+			else if(type == char.class)
+				buf.putChar(field.getChar(obj));
+			else if(type == int.class)
+				buf.putInt(field.getInt(obj));
+			else if(type == float.class)
+				buf.putFloat(field.getFloat(obj));
+			else if(type == long.class || type == double.class)
+				buf.putDouble(field.getDouble(obj));
+			else
+				throw new IllegalArgumentException("Cannot convert Objects other than String to a packet body!");
+		}
+		
+		return buf.array();
+	}
+	
+	/**
+	 * Deserializes a packet body into a Java Object.
+	 * Fields are used to deserialize packets, and read sequentially
+	 * Provided class must have a public constructor that requires no arguments, or an IllegalAccessException will be thrown.
+	 * The following types can be serialized: byte, boolean, short, char, int, float, long, double, String.
+	 * @param obj The object to serialize
+	 * @return The packet body
+	 * @throws InstantiationException If an Object of the class type specified cannot be instantiated
+	 * @throws IllegalArgumentException If a value is provided that is not on the list of types this method can serialize.
+	 * @throws IllegalAccessException If the Java reflection methods required to serialize fails
+	 * @since 1.0
+	 */
+	public static Object packetBodyToObject(byte[] body, Class<? extends Object> objectType) throws InstantiationException, IllegalAccessException {
+		ByteBuffer buf = ByteBuffer.wrap(body);
+		Object obj = objectType.newInstance();
+		Class<? extends Object> cls = obj.getClass();
+		
+		// Iterate over fields and read body
+		for(Field field : cls.getDeclaredFields()) {
+			// Bypass Java type checks to improve speed
+			field.setAccessible(true);
+			
+			Class<? extends Object> type = field.getType(); 
+			
+			// Assign fields
+			if(type == String.class) {
+				// Read string
+				byte[] bytes = new byte[buf.getInt()];
+				buf.get(bytes);
+				
+				// Set field
+				field.set(obj, new String(bytes, Charset.forName("UTF-8")));
+			} else if(type == byte.class) {
+				field.set(obj, buf.get());
+			} else if(type == boolean.class) {
+				field.set(obj, buf.get() == 1 ? true : false);
+			} else if(type == short.class) {
+				field.set(obj, buf.getShort());
+			} else if(type == char.class) {
+				field.set(obj, buf.getChar());
+			} else if(type == int.class) {
+				field.set(obj, buf.getInt());
+			} else if(type == float.class) {
+				field.set(obj, buf.getFloat());
+			} else if(type == long.class || type == double.class) {
+				field.set(obj, buf.getDouble());
+			} else {
+				throw new IllegalArgumentException("Cannot convert Objects other than String from a packet body!");
+			}
+		}
+		
+		return obj;
+	}
+	
+	private static class Test {
+		public String thing = "test";
+		public int thang = 10;
+		private int ouch = 11;
+		
+		public String toString() {
+			return thing+':'+thang+':'+ouch;
+		}
+	}
+	
+	public static void main(String[] args) throws InstantiationException {
+		try {
+			byte[] body = objectToPacketBody(new Test());
+			System.out.println(packetBodyToObject(body, Test.class));
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
 }
