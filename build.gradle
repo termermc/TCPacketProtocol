@@ -14,7 +14,7 @@ plugins {
 
 archivesBaseName = 'TCPacketProtocol'
 group = "net.termer.tcpacketprotocol"
-version = "1.0"
+version = "1.1"
 
 modifyPom {
     project {
