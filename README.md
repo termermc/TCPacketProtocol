@@ -68,7 +68,7 @@ dependencies {
 If you don't use a package manager, you can download the JAR library from the releases tab, or compile the library using Gradle.
 
 # Compiling
-Download or clone the repository, and run either `gradlew.bat` (Windows), or `./gradlew` (OSX, Linux, Unix).
+Download or clone the repository, and run either `gradlew.bat build` (Windows), or `./gradlew build` (OSX, Linux, Unix).
 If all goes well, the library will be in `build/libs/`.
 
 # Javadoc
