@@ -506,23 +506,4 @@ public class Packet {
 		
 		return obj;
 	}
-	
-	private static class Test {
-		public String thing = "test";
-		public int thang = 10;
-		private int ouch = 11;
-		
-		public String toString() {
-			return thing+':'+thang+':'+ouch;
-		}
-	}
-	
-	public static void main(String[] args) throws InstantiationException {
-		try {
-			byte[] body = objectToPacketBody(new Test());
-			System.out.println(packetBodyToObject(body, Test.class));
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
 }
